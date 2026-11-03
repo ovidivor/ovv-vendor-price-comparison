@@ -1,0 +1,345 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>OVV Vendor Price Comparison — Interactive Demo</title><style>
+:root{
+  --ivory:#EEF1F2;--paper:#fff;--ink:#17202A;--teal:#255E57;--teal2:#477C75;
+  --gold:#8A6D3B;--line:#DCE2E4;--muted:#697586;--soft:#F8F9FA;
+  --bad:#B0443E;--warn:#C17A24;--good:#2F6D59;--nav:#18272D;--section:#263A41;
+  --edit:#9A7742;--delete-bg:#FFF1F0;--delete:#B0443E;--delete-border:#E7BBB7;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ivory);color:var(--ink);font:15px Inter,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.4}
+body.modal-open{overflow:hidden}
+button,input,select,textarea{font:inherit}button{cursor:pointer}
+.app{display:grid;grid-template-columns:220px minmax(0,1fr);min-height:100vh}
+.side{position:sticky;top:0;height:100vh;padding:28px 16px;background:var(--nav);color:#fff;border-right:1px solid #22363D}
+.side-brand{padding:2px 10px 22px}.product{font-size:23px;font-weight:800;line-height:1.08;letter-spacing:-.02em}.sub{font-size:8px;letter-spacing:.15em;font-weight:800;margin-top:10px;color:#C5CFD2}
+.nav{display:grid;gap:4px}.nav-group{font-size:9px;font-weight:900;letter-spacing:.18em;color:#A9B7BB;padding:18px 10px 7px}
+.nav button{border:0;background:transparent;color:#EAF0F1;border-radius:5px;padding:9px 11px;font-weight:760;text-align:left;width:100%;font-size:11px}
+.nav button.active{background:#35464D;color:#fff}.nav button:hover{background:#ffffff0d}
+.creator-credit{position:absolute;left:26px;bottom:18px;color:#A9B7BB;font-size:9px;letter-spacing:.04em}
+main{padding:18px 22px 40px;min-width:0}.view{display:none}.view.active{display:block}
+.top{display:flex;justify-content:space-between;gap:18px;align-items:center;min-height:34px;margin:0 0 9px}
+.top h1{font-size:20px;font-weight:800;letter-spacing:-.01em;margin:0}
+.btn{min-height:34px;border:1px solid var(--teal);background:var(--teal);color:#fff;border-radius:5px;padding:8px 12px;font-size:10px;font-weight:800}
+.btn.secondary{background:#fff;color:#263A41;border-color:#CBD4D7}.btn.danger{background:#fff;color:var(--bad);border-color:#E2C2BF}
+.btn.edit{background:var(--edit);border-color:var(--edit);color:#fff}.btn.delete{background:var(--delete-bg);border-color:var(--delete-border);color:var(--delete)}
+.btn:hover{filter:brightness(.96)}.mini{min-height:28px;padding:5px 8px;font-size:9px}
+.card,.setting-card,.kpi{background:#fff;border:1px solid var(--line);border-radius:6px;box-shadow:none}
+.card{padding:12px}.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-bottom:10px}
+.kpi{padding:12px 14px;min-height:100px}.kpi .label{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:900}
+.kpi .value{font-size:23px;font-weight:800;margin-top:4px}.kpi .note{font-size:10px;color:var(--muted);margin-top:2px}
+.kpi.good{background:#EDF8F1;border-color:#C7E5D0}.kpi.warn{background:#FFF9DF;border-color:#F0E2A6}.kpi.info{background:#EEF5F7;border-color:#CADDE2}
+.grid2{display:grid;grid-template-columns:1.2fr .8fr;gap:10px}.panel{padding:0;overflow:hidden}.panel-head{background:var(--section);color:#fff;padding:11px 13px;display:flex;justify-content:space-between;align-items:center}
+.panel-head h2{font-size:14px;font-weight:800;margin:0}.panel-body{padding:0 13px}
+.list-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid #EEF0F2;font-size:11px}.list-row:last-child{border-bottom:0}
+.muted{color:var(--muted)}.small{font-size:9px}.money{text-align:right;font-variant-numeric:tabular-nums}
+.badge{display:inline-flex;align-items:center;border-radius:999px;padding:4px 8px;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.04em}
+.badge.open{background:#FFF4CC;color:#7A5A00}.badge.complete{background:#E7F3EC;color:var(--good)}.badge.draft{background:#EEF1F2;color:#56636D}.badge.awarded{background:#E7F3EC;color:var(--good)}
+.toolbar,.vendor-toolbar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+.toolbar input{width:220px;min-width:180px;max-width:220px;height:30px;padding:5px 7px;font-size:10px}.toolbar select{width:112px;min-width:112px;max-width:112px;height:30px;padding:4px 24px 4px 7px;font-size:10px;background:#F3F5F6;border:1px solid #C9D2D5}.vendor-toolbar{flex-wrap:nowrap}.vendor-toolbar>input{width:220px;min-width:180px;max-width:220px;height:30px;padding:5px 7px;font-size:10px}.preferred-filter{margin:0 0 0 auto!important;display:flex!important;align-items:center;gap:6px;text-transform:none!important;letter-spacing:0!important;font-size:10px!important;font-weight:750!important;color:var(--muted)!important;white-space:nowrap}.preferred-filter input{width:15px!important;min-width:15px!important;max-width:15px!important;height:15px!important;margin:0;padding:0}
+input,select,textarea{width:100%;border:1px solid #CBD4D7;background:#fff;color:var(--ink);border-radius:5px;padding:7px 8px;outline:none}
+input:focus,select:focus,textarea:focus{border-color:#90ABA6;box-shadow:0 0 0 2px #EAF1EF}
+textarea{min-height:54px;resize:vertical}label{display:block;font-size:9px;font-weight:850;letter-spacing:.06em;text-transform:uppercase;color:#687586;margin-bottom:4px}
+.tablewrap{overflow:auto;border:1px solid var(--line);border-radius:6px}.table{width:100%;border-collapse:collapse;min-width:900px}
+.table th{background:var(--section);color:#fff;text-align:left;font-size:9px;font-weight:800;letter-spacing:.055em;text-transform:uppercase;padding:7px 8px}
+.table td{padding:7px 8px;font-size:11px;border-bottom:1px solid #EEF0F2;vertical-align:middle}.table tbody tr:hover{background:#FAFBFB}
+.actions{display:flex;gap:6px;align-items:center;white-space:nowrap}.empty{padding:28px!important;text-align:center;color:var(--muted)}
+.icon-btn{width:30px;height:30px;border:1px solid var(--delete-border);background:var(--delete-bg);color:var(--delete);border-radius:5px;font-weight:800}
+.setting-card{padding:0;overflow:hidden}.setting-card>h3{background:var(--section);color:#fff;margin:0;padding:10px 13px;font-size:13px}
+.setting-body{padding:12px 13px 13px}.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.setting-card.full{grid-column:1/-1}.backup-card{background:#FFF8E7;border-color:#E8D9A9}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px}.full{grid-column:1/-1}
+.notice{background:#FFF8E9;border:1px solid #EEDCA9;border-radius:5px;padding:8px 9px;color:#654E25;font-size:9px;line-height:1.45}
+.modal{position:fixed;inset:0;background:rgba(12,19,23,.48);display:none;align-items:center;justify-content:center;padding:20px;z-index:50}.modal.open{display:flex}
+.modalbox{background:#fff;border-radius:7px;width:min(760px,94vw);max-height:90vh;display:flex;flex-direction:column;overflow:hidden;border:1px solid #D7DEE1;box-shadow:0 22px 60px rgba(17,32,38,.18)}
+.modalbox.wide{width:min(760px,94vw);max-height:88vh}.modalhead{background:var(--section);color:#fff;padding:9px 14px;display:flex;justify-content:space-between;align-items:center}
+.modalhead h2{font-size:18px;font-weight:800;margin:0}.close{width:28px;height:28px;border:0;border-radius:5px;background:rgba(255,255,255,.1);color:#fff;font-size:18px}
+.modalbody{padding:10px 14px;overflow:auto}.modalbody .form-grid{gap:6px 10px}.modalbody label{font-size:8.5px;margin-bottom:2px;line-height:1.15}.modalbody input,.modalbody select,.modalbody textarea{font-size:11px;padding:6px 8px;min-height:30px;border-radius:5px}.modalbody textarea{min-height:42px;max-height:54px}.modal-actions{background:#F6F8F8;border-top:1px solid #E1E6E8;padding:9px 14px;display:flex;justify-content:flex-end;gap:8px}
+.modal-actions .btn{min-height:36px;padding:8px 16px;font-size:11px;font-weight:850}
+.chips{display:flex;gap:6px;flex-wrap:wrap}.chip{display:inline-flex;align-items:center;gap:6px;background:#F3F6F6;border:1px solid var(--line);border-radius:999px;padding:5px 8px;font-size:10px}.chip button{border:0;background:none;color:var(--bad);font-weight:900}
+.compare-shell{display:grid;gap:10px}.compare-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.compare-table{min-width:1050px}
+.compare-table input{min-width:88px;padding:6px 7px;font-size:10px}.compare-table .item-input{min-width:180px}.compare-table .unit-input{min-width:80px}.compare-table tbody td:nth-child(-n+3){vertical-align:top;padding-top:17px}
+.lowest{background:#EDF8F1!important;color:#235C49;font-weight:850}.missing{background:#FFF8E7!important}.quote-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-top:10px}
+.quote-card{border:1px solid var(--line);border-radius:6px;background:#fff;padding:10px}.quote-card.best{background:#EDF8F1;border-color:#C7E5D0}.quote-card h4{margin:0 0 7px;font-size:11px}.quote-line{display:flex;justify-content:space-between;gap:8px;padding:3px 0;font-size:10px}.quote-line.total{border-top:1px solid var(--line);margin-top:5px;padding-top:7px;font-weight:850}
+.quote-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.quote-panel{border:1px solid var(--line);border-radius:6px;overflow:hidden;background:#fff}.quote-panel-head{background:#F3F5F6;padding:6px 8px;font-size:10px;font-weight:800;display:flex;justify-content:space-between;align-items:center;gap:8px}.quote-panel-body{padding:7px 8px}.quote-fields{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px 7px}.quote-fields .full{grid-column:1/-1}.quote-fields label{font-size:7.5px;margin-bottom:2px}.quote-fields input,.quote-fields select{font-size:9.5px;padding:4px 6px;min-height:27px}.quote-fields textarea{font-size:9.5px;padding:5px 6px;min-height:34px;max-height:40px}.quote-missing{font-size:8px;color:var(--bad);font-weight:800}.quote-ok{font-size:8px;color:var(--good);font-weight:800}
+.result-banner{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}.result-block{border:1px solid var(--line);border-radius:6px;padding:12px 14px;min-height:104px;background:#fff}.result-block.single{background:#fff;border-color:#DCE2E4}.result-block.combo{background:#EDF8F1;border-color:#C7E5D0}.result-block.decision{background:#FFF8E7;border-color:#E8D9A9}.result-block.saving{background:#F1F4F6;border-color:#D8E0E4}.result-block b{display:block;font-size:18px;margin-top:4px;line-height:1.2}.result-block span{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:900}.result-block .muted{margin-top:5px;line-height:1.35}
+#workspaceView .tablewrap{background:#fff}.section-title{font-size:14px;font-weight:800;margin:2px 0 7px}.right{text-align:right}
+#welcomeScreen{position:fixed;inset:0;z-index:9999;background:#EEF1F2;display:flex;align-items:center;justify-content:center;padding:20px}
+#welcomeScreen.hidden{display:none}.welcome-card{width:min(780px,94vw);background:#fff;border-radius:8px;border:1px solid #D7DEE1;box-shadow:0 22px 60px rgba(17,32,38,.18);overflow:hidden}
+.welcome-top{background:var(--section);color:#fff;padding:22px 26px 20px}.welcome-top .eyebrow{color:#C7D8D5;font-size:8px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}.welcome-top h1{font-size:23px;margin:5px 0 3px}.welcome-top p{color:#D8E2E0;font-size:11px;margin:0}
+.welcome-options{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px}.welcome-option{min-height:150px;padding:16px;border:1px solid var(--line);border-radius:6px;display:flex;flex-direction:column;gap:9px}
+.welcome-option.saved{grid-column:1/-1;min-height:120px}.info-chip{display:inline-flex;align-self:flex-start;background:#EEF3F2;color:#365E58;border:1px solid #D7E3E0;border-radius:4px;padding:4px 7px;font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.06em}
+.welcome-option h2{font-size:16px;margin:0}.welcome-option p{font-size:10px;line-height:1.45;margin:0;color:var(--muted);flex:1}.welcome-option .btn{align-self:flex-start}
+.toast{position:fixed;right:18px;bottom:18px;background:var(--teal);color:#fff;padding:11px 14px;border-radius:6px;font-weight:800;opacity:0;transform:translateY(8px);transition:.18s;z-index:80}.toast.show{opacity:1;transform:none}
+.backup-reminder{position:fixed;right:18px;bottom:18px;z-index:120;width:min(340px,calc(100vw - 36px));background:#fff;border:1px solid #C8DED8;border-radius:6px;box-shadow:0 18px 48px rgba(20,44,50,.18);padding:14px 15px;display:none}.backup-reminder.show{display:block}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}input[type=number]{-moz-appearance:textfield;appearance:textfield}.unit-input{min-width:92px}.missing-price{background:#FFF1F0!important;border-color:#E7BBB7!important}.unit-list{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}.unit-chip{display:inline-flex;align-items:center;gap:6px;background:#F3F6F6;border:1px solid var(--line);border-radius:5px;padding:5px 7px;font-size:9px;font-weight:750}.unit-chip button{border:0;background:none;color:var(--bad);font-weight:900;padding:0}.action-link{border:0;background:none;color:var(--teal);font-size:9px;font-weight:850;padding:0;cursor:pointer}
+@media(max-width:1000px){.kpis{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr}.settings-grid{grid-template-columns:1fr}.setting-card.full{grid-column:auto}.result-banner{grid-template-columns:1fr 1fr}}
+
+.multi-select{position:relative}.multi-select-btn{width:100%;min-height:32px;border:1px solid #CBD4D7;background:#fff;border-radius:5px;padding:6px 9px;text-align:left;font-size:11px;color:var(--ink);display:flex;justify-content:space-between;align-items:center}.multi-select-btn:after{content:"▾";font-size:11px;color:var(--muted)}.multi-select-menu{display:none;position:absolute;z-index:70;left:0;right:0;top:calc(100% + 4px);background:#fff;border:1px solid #CBD4D7;border-radius:6px;box-shadow:0 12px 28px rgba(17,32,38,.14);max-height:220px;overflow:auto;padding:5px}.multi-select.open .multi-select-menu{display:block}.multi-option{display:flex;align-items:center;gap:7px;padding:6px 7px;border-radius:4px;font-size:10px;font-weight:700;cursor:pointer}.multi-option:hover{background:#F1F5F4}.multi-option input{width:auto!important;min-height:0!important;margin:0}.selected-supplier{min-width:145px}.decision-tools{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}.comparison-alert{display:block;visibility:hidden;height:62px;background:transparent;border:1px solid transparent;color:#5E4B22;border-radius:6px;padding:9px 11px;margin:8px 0;font-size:11px;line-height:1.45;overflow:auto}.comparison-alert.show{visibility:visible;background:#FFF7E8;border-color:#E7D29A}.comparison-alert b{color:#493B1D}.decision-warning{display:block;visibility:hidden;height:36px;background:transparent;border:1px solid transparent;color:#654E25;border-radius:5px;padding:9px 11px;margin:7px 0;font-size:10px;overflow:auto}.decision-warning.show{visibility:visible;background:#FFF8E7;border-color:#E8D9A9}.spread{font-size:9px;color:var(--muted);margin-top:3px}.selected-cell{background:#F5FAF8}.decision-good{color:var(--good);font-weight:800}.decision-diff{color:var(--warn);font-weight:800}.selection-wrap{display:flex;align-items:center;gap:6px}.selection-wrap .selected-supplier{flex:1}.recalc-icon{display:none;width:22px;height:22px;flex:0 0 22px;border-radius:50%;align-items:center;justify-content:center;background:#FFF3CD;border:1px solid #E4C56A;color:#7A5A00;font-size:13px;font-weight:900;line-height:1;cursor:help}.recalc-icon.show{display:inline-flex}.selection-cost{font-size:9px;color:var(--muted);margin-top:3px;line-height:1.25;font-weight:500}.selection-cost .cost-detail{font-size:8px;color:var(--muted);font-weight:500;margin-top:2px}.vendor-item-total{font-size:8px;color:var(--muted);font-weight:700;margin-top:3px;line-height:1.2}.decision-tools{justify-content:space-between;align-items:center}.decision-buttons{display:flex;gap:6px;flex-wrap:wrap}.calc-options{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-left:auto;padding:5px 8px;background:#F6F8F8;border:1px solid var(--line);border-radius:5px}.calc-options>span{font-size:8px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}.calc-options label{display:flex;align-items:center;gap:4px;margin:0;font-size:9px;letter-spacing:0;text-transform:none;color:var(--ink);font-weight:750}.calc-options input{width:auto;min-height:0;margin:0}
+@media(max-width:900px){.quote-grid{grid-template-columns:1fr}.quote-fields{grid-template-columns:1fr 1fr}}
+@media(max-width:760px){.app{display:block}.side{position:relative;height:auto}.creator-credit{display:none}.nav{grid-template-columns:1fr 1fr}.nav-group{grid-column:1/-1}.welcome-options{grid-template-columns:1fr}.welcome-option.saved{grid-column:auto}.form-grid{grid-template-columns:1fr}.full{grid-column:auto}.kpis{grid-template-columns:1fr 1fr}main{padding:15px}}
+@media print{*{print-color-adjust:exact;-webkit-print-color-adjust:exact}.side,.top .actions,#addItem,.decision-tools{display:none!important}.app{display:block!important}main{padding:0!important}.view{display:none!important}#workspaceView{display:block!important}.quote-panel{break-inside:avoid}}
+
+/* v19 — selection tie-breaker, recalculation safeguards, streamlined settings */
+.overview-visuals{display:grid;grid-template-columns:.8fr 1.2fr;gap:10px;margin-bottom:10px}.overview-visual-card{background:#fff;border:1px solid var(--line);border-radius:6px;padding:12px}.overview-visual-title{font-size:14px;font-weight:800;color:#263A41;margin:0 0 10px}.overview-status-bars{display:grid;gap:9px}.overview-status-line{display:grid;grid-template-columns:68px minmax(90px,1fr) 28px;gap:9px;align-items:center;font-size:10px;cursor:pointer;border-radius:4px;padding:3px 2px}.overview-status-line:hover{background:#F7F9F9}.overview-status-line>b{text-align:right;font-size:11px}.overview-status-track{height:9px;background:#EEF1F2;border-radius:999px;overflow:hidden}.overview-status-fill{height:100%;border-radius:999px;transform-origin:left center;animation:ovvStatusBarGrow 720ms cubic-bezier(.22,.61,.36,1) both}.overview-status-fill.open{background:#D8B84A}.overview-status-fill.awarded{background:#4F8A72}.overview-status-fill.draft{background:#8A98A1}.overview-months{display:flex;align-items:end;gap:8px;height:120px;border-left:1px solid var(--line);border-bottom:1px solid var(--line);padding:8px 6px 0}.overview-month{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:end;gap:4px;height:100%;cursor:pointer;border-radius:4px 4px 0 0}.overview-month:hover{background:#F7F9F9}.overview-month .col{width:70%;min-height:3px;background:var(--teal);border-radius:5px 5px 0 0;transform-origin:center bottom;animation:ovvPaymentBarGrow 820ms cubic-bezier(.22,.61,.36,1) both}.overview-month small{font-size:8px;color:var(--muted)}.overview-month .count{font-size:8px;font-weight:800;color:#263A41}.overview-month:nth-child(2) .col{animation-delay:35ms}.overview-month:nth-child(3) .col{animation-delay:70ms}.overview-month:nth-child(4) .col{animation-delay:105ms}.overview-month:nth-child(5) .col{animation-delay:140ms}.overview-month:nth-child(6) .col{animation-delay:175ms}.overview-month:nth-child(7) .col{animation-delay:210ms}.overview-month:nth-child(8) .col{animation-delay:245ms}.overview-month:nth-child(9) .col{animation-delay:280ms}.overview-month:nth-child(10) .col{animation-delay:315ms}.overview-month:nth-child(11) .col{animation-delay:350ms}.overview-month:nth-child(12) .col{animation-delay:385ms}@keyframes ovvStatusBarGrow{from{transform:scaleX(0)}to{transform:scaleX(1)}}@keyframes ovvPaymentBarGrow{from{transform:scaleY(0)}to{transform:scaleY(1)}}.comparison-scope-chip{display:none;align-items:center;gap:6px;background:#FFF8E7;border:1px solid #E8D9A9;border-radius:5px;padding:7px 9px;font-size:10px;color:#6E5A2D}.comparison-scope-chip.show{display:inline-flex}.comparison-scope-chip button{border:0;background:transparent;color:#6E5A2D;font-weight:900;padding:0;cursor:pointer}.backup-reminder-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.backup-reminder-title{font-size:15px;font-weight:800;color:#17202A;margin-bottom:3px}.backup-reminder-text{font-size:10px;line-height:1.45;color:#697586}.backup-reminder-count{font-size:9px;color:#697586;white-space:nowrap;padding-top:2px}.backup-reminder-actions{display:flex;gap:7px;margin-top:11px}.backup-reminder-actions .btn{padding:7px 10px;font-size:10px}@media(max-width:900px){.overview-visuals{grid-template-columns:1fr}}@media(prefers-reduced-motion:reduce){.overview-status-fill,.overview-month .col{animation:none!important}}
+</style><style>
+.demo-ribbon{background:#fff8e7;border:1px solid #e8d9a9;border-radius:5px;padding:10px 12px;margin-bottom:12px;font-size:11px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.demo-ribbon a,.locked-copy a{color:#255e57;font-weight:850}
+#workspaceView{display:block}.app{min-height:100vh}.nav button[data-locked]{opacity:.82}.nav button[data-locked]::after{content:'  🔒';font-size:9px}
+.locked-copy{padding:24px;line-height:1.7;font-size:12px}.locked-copy p{margin-top:0}.locked-copy .btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;background:#255E57!important;color:#FFFFFF!important;border:1px solid #255E57!important;min-height:42px;padding:11px 17px;font-size:12px;position:relative;z-index:2}.locked-copy .btn:hover{background:#1B4943!important;color:#FFFFFF!important}
+@media(max-width:760px){.demo-ribbon{flex-direction:column;align-items:flex-start}.app{display:block}.side{height:auto;position:relative}.nav{display:flex;flex-wrap:wrap}.nav-group{display:none}.side-brand{padding-bottom:10px}.compare-table{min-width:850px}}
+</style>
+<!-- Google Analytics tag -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-TVSCEM0E3Q"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-TVSCEM0E3Q');</script>
+</head><body><div class="app"><header class="side"><div class="side-brand"><div class="product">Vendor Price</div><div class="sub">COMPARISON · DEMO</div></div><div class="nav"><div class="nav-group">WORKSPACE</div><button class="active" type="button">Item Price Comparison</button><button data-locked="1" type="button">Overview</button><button data-locked="1" type="button">Comparisons</button><button data-locked="1" type="button">Vendors &amp; Suppliers</button><div class="nav-group">SYSTEM</div><button data-locked="1" type="button">Settings</button></div><div class="creator-credit">Created by OVV Studio</div></header><main>
+<div class="demo-ribbon"><div><b>INTERACTIVE DEMO · 2 VENDORS</b><br>Try changing prices, quotes, shipping and supplier selections. All changes reset when the page reloads. <a href="https://www.etsy.com/dk-en/listing/4584534617/vendor-price-comparison-tool-supplier" target="_blank" rel="noopener noreferrer">View full product on Etsy</a></div><button id="resetDemo" class="btn secondary mini" type="button">Reset demo</button></div>
+<section class="view active" id="workspaceView">
+  <div class="top"><div><h1 id="workspaceTitle">Comparison</h1><div class="muted small" id="workspaceSub"></div></div><div class="actions"><button class="btn secondary" id="duplicateComparison">Duplicate</button><button class="btn secondary" id="printComparison">Export PDF</button><button class="btn edit" id="editComparisonMeta">Edit details</button></div></div>
+  <div class="result-banner" id="resultBanner"></div>
+  <div style="height:10px"></div>
+  <div class="section-title">Item Price Comparison</div><div class="comparison-alert" id="comparisonAlert"></div><div class="decision-warning" id="decisionWarning">⚠ Selection needs recalculation. A price, shipping, tax or discount value changed after suppliers were selected. Review the purchase decision below.</div><div class="decision-tools"><div class="decision-buttons"><button class="btn secondary mini" id="selectLowestItems">Select lowest combination</button><button class="btn secondary mini" id="selectBestVendor">Select best single vendor</button><button class="btn secondary mini" id="clearSelections">Clear selections</button></div><div class="calc-options"><span>Include in calculation</span><label><input type="checkbox" id="calcShipping" checked> Shipping</label><label><input type="checkbox" id="calcTax" checked> Tax</label><label><input type="checkbox" id="calcDiscount" checked> Discount</label></div></div>
+  <div class="tablewrap"><table class="table compare-table"><thead id="compareHead"></thead><tbody id="compareBody"></tbody></table></div>
+  <div class="actions" style="margin-top:8px"><button class="btn secondary mini" id="addItem">+ Add item</button></div>
+  <div style="height:12px"></div>
+  <div class="section-title">Vendor Quotes</div>
+  <div class="quote-grid" id="quotePanels"></div>
+  <div class="quote-summary" id="quoteSummary"></div>
+</section></main></div><div class="modal" id="lockedModal"><div class="modalbox"><div class="modalhead"><h2 id="lockedTitle">Full version feature</h2><button class="close" id="lockedClose" type="button">×</button></div><div class="locked-copy"><p>This feature is available in the purchased Vendor Price Comparison tool. This demo focuses on the complete two-vendor comparison workflow, including warnings and purchase decisions.</p><a class="btn" href="https://www.etsy.com/dk-en/listing/4584534617/vendor-price-comparison-tool-supplier" target="_blank" rel="noopener noreferrer">View the full version on Etsy</a></div></div></div><div class="toast" id="toast"></div><script>
+const $=id=>document.getElementById(id);
+const STORE='ovvVendorPriceComparisonV1', BACKUP='ovvVendorPriceComparisonLastBackup', WELCOME='ovvVendorPriceComparisonWelcome';
+const currencies=['AUD','CAD','CHF','DKK','EUR','GBP','JPY','NOK','NZD','SEK','USD','Other'];
+let settings={currency:'USD',dateFormat:'MDY',expiryWarning:7,overviewYear:'',units:['pcs','boxes','packs','rolls','kg','g','lb','oz','m','cm','L','mL']};
+let vendors=[],comparisons=[],editVendorId=null,editComparisonId=null,currentComparisonId=null,dirty=false;
+const today=()=>new Date().toISOString().slice(0,10);
+const uid=()=>Date.now()+Math.floor(Math.random()*10000);
+const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+const num=v=>Number(v)||0;
+function toast(s){$('toast').textContent=s;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),1600)}
+
+function fmtDate(s){if(!s)return'—';const [y,m,d]=s.split('-');return settings.dateFormat==='DMY'?`${d}/${m}/${y}`:settings.dateFormat==='YMD'?s:`${m}/${d}/${y}`}
+function money(v,c=''){if(v===null||v===undefined||!Number.isFinite(Number(v)))return'—';if(!c||c==='Other')return new Intl.NumberFormat(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}).format(Number(v));try{return new Intl.NumberFormat(undefined,{style:'currency',currency:c,maximumFractionDigits:2}).format(Number(v))}catch{return `${c} ${Number(v).toFixed(2)}`}}
+function vendor(id){return vendors.find(v=>v.id===Number(id))}
+function comparison(id){return comparisons.find(c=>c.id===Number(id))}
+function vendorName(id){return vendor(id)?.company||'Unknown vendor'}
+function fillCurrency(id,value){const e=$(id);e.innerHTML=currencies.map(c=>`<option>${c}</option>`).join('');e.value=currencies.includes(value)?value:'USD'}
+
+function quoteFor(c,vid){if(!c.quotes)c.quotes={};if(!c.quotes[vid])c.quotes[vid]={quoteNo:'',quoteDate:'',validUntil:'',shipping:0,discountType:'value',discount:0,tax:0,paymentTerms:vendor(vid)?.terms||'',leadTime:vendor(vid)?.leadTime||'',notes:'',received:false};return c.quotes[vid]}
+function priceFor(c,item,vid){item.prices=item.prices||{};return item.prices[vid]===''||item.prices[vid]===undefined?null:Number(item.prices[vid])}
+function vendorSubtotal(c,vid){return c.items.reduce((s,it)=>{const p=priceFor(c,it,vid);return s+(p===null?0:num(it.qty)*p)},0)}
+function quoteEligible(c,vid){return !!quoteFor(c,vid).received}
+function vendorComplete(c,vid){return quoteEligible(c,vid)&&c.items.length>0&&c.items.every(it=>priceFor(c,it,vid)!==null)}
+function calcOptions(c){
+ c.calcOptions=c.calcOptions||{shipping:true,tax:true,discount:true};
+ return {shipping:c.calcOptions.shipping!==false,tax:c.calcOptions.tax!==false,discount:c.calcOptions.discount!==false};
+}
+function groupCost(c,vid,sub){
+ const q=quoteFor(c,vid),o=calcOptions(c);
+ let disc=0;
+ if(o.discount)disc=q.discountType==='percent'?sub*num(q.discount)/100:num(q.discount);
+ disc=Math.min(Math.max(0,sub),Math.max(0,disc));
+ const shipping=o.shipping?num(q.shipping):0;
+ const base=Math.max(0,sub-disc)+shipping;
+ const tax=o.tax?base*num(q.tax)/100:0;
+ return {subtotal:sub,discount:disc,shipping,tax,total:base+tax};
+}
+function vendorTotal(c,vid){return groupCost(c,vid,vendorSubtotal(c,vid)).total}
+function totals(c){return c.vendorIds.filter(v=>vendorComplete(c,v)).map(v=>({vid:v,total:vendorTotal(c,v)})).sort((a,b)=>a.total-b.total)}
+function allocationCost(c,alloc){
+ const grouped={};alloc.forEach((vid,i)=>{const p=priceFor(c,c.items[i],vid);if(p!==null)grouped[vid]=(grouped[vid]||0)+num(c.items[i].qty)*p});
+ let total=0;Object.keys(grouped).forEach(k=>total+=groupCost(c,+k,grouped[k]).total);return total;
+}
+function bestSplit(c){
+ // "Lowest combination" is deliberately based ONLY on the stable comparison Total shown
+ // under each supplier price. Award-level shipping/discount/tax recalculation must never feed
+ // back into the nomination or green highlighting.
+ if(!c.items.length||!c.vendorIds.length)return null;
+ const alloc=[];let total=0;
+ for(const it of c.items){
+   const candidates=c.vendorIds.map(v=>({vid:v,a:vendorItemAllocation(c,it,v)})).filter(x=>x.a);
+   if(!candidates.length)return null;
+   candidates.sort((a,b)=>{
+     const d=a.a.total-b.a.total;if(Math.abs(d)>.000001)return d;
+     // Stable tie-break: lower raw unit price, then existing vendor order.
+     const pa=priceFor(c,it,a.vid),pb=priceFor(c,it,b.vid);return (pa??Infinity)-(pb??Infinity);
+   });
+   const pick=candidates[0];
+   alloc.push({item:it.name,vid:pick.vid,p:priceFor(c,it,pick.vid),comparisonTotal:pick.a.total});
+   total+=pick.a.total;
+ }
+ return {total,alloc,vendors:new Set(alloc.map(x=>x.vid)),lowestWins:alloc.length};
+}
+function savings(c){const t=totals(c);return t.length>=2?t[t.length-1].total-t[0].total:0}
+function comparisonStatus(c){return c.status||'Draft'}
+
+function workspaceAlerts(c){
+ if(c.status==='Awarded'){const el=$('comparisonAlert');if(el){el.innerHTML='';el.classList.remove('show')}return}
+ const alerts=[];
+ c.vendorIds.forEach(v=>{const q=quoteFor(c,v),name=vendorName(v),vc=vendor(v)?.currency||settings.currency,missing=c.items.filter(it=>priceFor(c,it,v)===null).length;
+   if(!q.received)alerts.push(`<b>${esc(name)}</b> — quote marked Waiting; any entered values are excluded from calculations.`);
+   else if(missing)alerts.push(`<b>${esc(name)}</b> — ${missing} item price${missing===1?' is':'s are'} missing.`);
+   if(c.status!=='Awarded'&&q.received&&q.validUntil){const end=new Date(q.validUntil+'T23:59:59'),now=new Date(),days=Math.ceil((end-now)/86400000),warn=num(settings.expiryWarning);if(days<0)alerts.push(`<b>${esc(name)}</b> — quote expired ${fmtDate(q.validUntil)}. Prices are still included in calculations; confirm the quote is still valid before making a decision.`);else if(days<=warn)alerts.push(`<b>${esc(name)}</b> — quote expires ${fmtDate(q.validUntil)}${days>=0?` (${days} day${days===1?'':'s'})`:''}. Prices remain included in calculations.`);}
+   if(c.currency&&c.currency!=='Other'&&vc&&vc!=='Other'&&vc!==c.currency)alerts.push(`<b>${esc(name)}</b> — vendor currency is ${esc(vc)}. This comparison uses ${esc(c.currency)}; enter all quote values converted to ${esc(c.currency)}.`);
+ });
+ if(c.status!=='Awarded'&&c.decisionNeedsReview)alerts.push(`⚠ Selection needs recalculation. A price, shipping, tax, discount or calculation option changed after suppliers were selected. Review the purchase decision below.`);
+ const el=$('comparisonAlert');if(!el)return;el.innerHTML=alerts.length?`<b>Needs attention</b><br>${alerts.join('<br>')}`:'';el.classList.toggle('show',alerts.length>0);
+}
+
+function selectedDecisionTotal(c){
+ const grouped={};let count=0;
+ c.items.forEach(it=>{const vid=Number(it.selectedVendorId)||0,p=vid&&quoteEligible(c,vid)?priceFor(c,it,vid):null;if(vid&&p!==null){count++;grouped[vid]=(grouped[vid]||0)+num(it.qty)*p}});
+ let total=0;Object.keys(grouped).forEach(k=>total+=groupCost(c,+k,grouped[k]).total);
+ return {total,count,vendors:new Set(Object.keys(grouped)),discountsApplied:calcOptions(c).discount};
+}
+function hasAnySelection(c){return c.items.some(x=>!!Number(x.selectedVendorId))}
+function decisionScenarioTotal(c,it,vid){
+ const grouped={};
+ c.items.forEach(x=>{
+   const useVid=x.id===it.id?vid:Number(x.selectedVendorId)||0;
+   if(!useVid||!quoteEligible(c,useVid))return;
+   const p=priceFor(c,x,useVid);if(p===null)return;
+   grouped[useVid]=(grouped[useVid]||0)+num(x.qty)*p;
+ });
+ let total=0;Object.keys(grouped).forEach(k=>total+=groupCost(c,+k,grouped[k]).total);return total;
+}
+function vendorItemAllocation(c,it,vid){
+ const p=priceFor(c,it,vid);if(p===null||!quoteEligible(c,vid))return null;
+ // Stable quote-comparison total: allocate this supplier's enabled quote-level costs across
+ // every priced line in the supplier quote by merchandise value. Nominations never change it.
+ const priced=c.items.filter(x=>priceFor(c,x,vid)!==null);
+ const merchandise=priced.map(x=>({it:x,value:num(x.qty)*priceFor(c,x,vid)}));
+ const groupSub=merchandise.reduce((a,x)=>a+x.value,0),itemValue=num(it.qty)*p;
+ const share=groupSub>0?itemValue/groupSub:(priced.length?1/priced.length:0),g=groupCost(c,vid,groupSub);
+ return {itemValue,discountShare:g.discount*share,shippingShare:g.shipping*share,taxShare:g.tax*share,total:g.total*share};
+}
+function rowLowestVendorTotals(c,it){
+ const vals=c.vendorIds.map(v=>({v,a:vendorItemAllocation(c,it,v)})).filter(x=>x.a);
+ if(!vals.length)return {low:null,vals};
+ return {low:Math.min(...vals.map(x=>x.a.total)),vals};
+}
+function selectedItemAllocation(c,it){
+ const vid=Number(it.selectedVendorId)||0;if(!vid||!quoteEligible(c,vid))return null;
+ const p=priceFor(c,it,vid);if(p===null)return null;
+ // Award estimate: include this supplier's full enabled quote-level shipping/discount/tax once,
+ // then prorate those amounts by merchandise value across ONLY the lines actually awarded to it.
+ const awarded=c.items.filter(x=>Number(x.selectedVendorId)===vid&&priceFor(c,x,vid)!==null);
+ const groupSub=awarded.reduce((sum,x)=>sum+num(x.qty)*priceFor(c,x,vid),0),itemValue=num(it.qty)*p;
+ const share=groupSub>0?itemValue/groupSub:(awarded.length?1/awarded.length:0),g=groupCost(c,vid,groupSub);
+ return {itemValue,discountShare:g.discount*share,shippingShare:g.shipping*share,taxShare:g.tax*share,total:g.total*share};
+}
+function syncDecisionWarnings(c){
+ // Older saved comparisons used a single comparison-wide flag. Migrate lazily.
+ c.decisionNeedsReview=c.status!=='Awarded'&&c.items.some(it=>!!it.selectionNeedsReview&&!!it.selectedVendorId);
+}
+function markDecisionChanged(c){
+ if(c.status==='Awarded')return;
+ c.items.forEach(it=>{if(it.selectedVendorId)it.selectionNeedsReview=true});
+ syncDecisionWarnings(c);
+}
+function clearDecisionWarnings(c){
+ c.items.forEach(it=>it.selectionNeedsReview=false);
+ c.decisionNeedsReview=false;
+}
+function openWorkspace(id){currentComparisonId=id;renderWorkspace()}
+function renderWorkspace(){
+ const c=comparison(currentComparisonId);if(!c){showView('comparisons');return}
+ syncDecisionWarnings(c);
+ c.items.forEach(it=>{if(it.selectedVendorId===undefined)it.selectedVendorId=null});
+ $('workspaceTitle').textContent=c.title;$('workspaceSub').textContent=`${fmtDate(c.date)} · ${c.vendorIds.length} vendors · ${c.items.length} items${c.currency&&c.currency!=='Other'?` · ${c.currency}`:''} · ${c.status}`;
+ const co=calcOptions(c);$('calcShipping').checked=co.shipping;$('calcTax').checked=co.tax;$('calcDiscount').checked=co.discount;
+ const t=totals(c),best=t[0],worst=t[t.length-1],split=bestSplit(c),extra=best&&split?Math.max(0,best.total-split.total):0;
+ const decision=selectedDecisionTotal(c);let selectedTotal=decision.total,selectedCount=decision.count,selectedVendors=decision.vendors;
+ const completeDecision=selectedCount===c.items.length&&c.items.length>0,decisionDiff=completeDecision&&split?selectedTotal-split.total:null;
+ $('resultBanner').innerHTML=`<div class="result-block single"><span>Best single vendor</span><b>${best?esc(vendorName(best.vid)):'Incomplete quotes'}</b><div class="muted small">${best?money(best.total,c.currency):'Enter all item prices'}</div></div><div class="result-block combo"><span>Lowest purchase combination</span><b>${split?money(split.total,c.currency):'—'}</b><div class="muted small">${split?`${split.vendors.size} supplier${split.vendors.size===1?'':'s'} · based on fixed item comparison totals`:'Complete item prices to calculate'}</div></div><div class="result-block decision"><span>Purchase decision</span><b>${completeDecision?money(selectedTotal,c.currency):`${selectedCount} of ${c.items.length} items selected`}</b><div class="muted small">${completeDecision?(decisionDiff<=0?`At or below comparison benchmark · ${selectedVendors.size} supplier${selectedVendors.size===1?'':'s'}`:`${money(decisionDiff,c.currency)} above comparison benchmark · ${selectedVendors.size} supplier${selectedVendors.size===1?'':'s'}`):'Choose a supplier for each item'}</div></div><div class="result-block saving"><span>Potential saving</span><b>${t.length>=2?money(worst.total-best.total,c.currency):'—'}</b><div class="muted small">Highest complete quote vs best single-vendor total</div></div>`;
+ workspaceAlerts(c);const dw=$('decisionWarning');if(dw)dw.classList.remove('show');
+ $('compareHead').innerHTML=`<tr><th>Item / Product</th><th>Qty</th><th>Unit</th>${c.vendorIds.map(v=>`<th>${esc(vendorName(v))}<div style="font-weight:400;opacity:.8">Unit price</div></th>`).join('')}<th>Selected supplier</th><th></th></tr>`;
+ $('compareBody').innerHTML=c.items.map(it=>{
+   const vals=c.vendorIds.filter(v=>quoteEligible(c,v)).map(v=>({v,p:priceFor(c,it,v)})).filter(x=>x.p!==null),low=vals.length?Math.min(...vals.map(x=>x.p)):null,high=vals.length?Math.max(...vals.map(x=>x.p)):null,spread=low!==null&&low>0?((high-low)/low*100):0;
+   const rowTotals=rowLowestVendorTotals(c,it),opts=c.vendorIds.filter(v=>quoteEligible(c,v)&&priceFor(c,it,v)!==null).map(v=>{const a=vendorItemAllocation(c,it,v),isLow=a&&rowTotals.low!==null&&Math.abs(a.total-rowTotals.low)<.000001;return `<option value="${v}" ${Number(it.selectedVendorId)===v?'selected':''}>${esc(vendorName(v))}${isLow?' · lowest':''}</option>`}).join('');
+   return `<tr data-item="${it.id}"><td><input class="item-name item-input" value="${esc(it.name)}" placeholder="Item description"><div class="spread">${vals.length>1?`Price spread ${spread.toFixed(1)}% · ${money(low,c.currency)}–${money(high,c.currency)}`:''}</div></td><td><input class="item-qty" type="number" min="0" step="0.01" value="${it.qty===''||it.qty===null||it.qty===undefined?1:num(it.qty)}"></td><td><select class="item-unit unit-input">${settings.units.map(u=>`<option ${u===(it.unit||'pcs')?'selected':''}>${esc(u)}</option>`).join('')}</select></td>${(()=>{const rt=rowLowestVendorTotals(c,it);return c.vendorIds.map(v=>{const p=priceFor(c,it,v),a=vendorItemAllocation(c,it,v),isLow=a&&rt.low!==null&&Math.abs(a.total-rt.low)<.000001;return `<td class="${Number(it.selectedVendorId)===v?'selected-cell':''}"><input class="item-price ${p===null?'missing-price':(isLow?'lowest':'')}" data-vendor="${v}" type="number" min="0" step="0.0001" value="${p===null?'':p}" placeholder="Missing">${a?`<div class="vendor-item-total">Total ${money(a.total,c.currency)}</div>`:''}</td>`}).join('')})()}<td><div class="selection-wrap"><select class="selected-supplier"><option value="">Not selected</option>${opts}</select><span class="recalc-icon ${c.status!=='Awarded'&&it.selectionNeedsReview&&it.selectedVendorId?'show':''}" title="Review this selection after changes. Manually selecting a supplier confirms this row.">!</span></div>${(()=>{const a=selectedItemAllocation(c,it);return `<div class="selection-cost">${a?`Total ${money(a.total,c.currency)}<div class="cost-detail">${a.shippingShare?`Shipping ${money(a.shippingShare,c.currency)}`:''}${a.discountShare?`${a.shippingShare?' · ':''}Discount −${money(a.discountShare,c.currency)}`:''}${a.taxShare?`${(a.shippingShare||a.discountShare)?' · ':''}Tax ${money(a.taxShare,c.currency)}`:''}</div>`:''}</div>`})()}</td><td><button class="icon-btn del-item">×</button></td></tr>`
+ }).join('');
+ $('quotePanels').innerHTML=c.vendorIds.map(v=>{const q=quoteFor(c,v);return `<div class="quote-panel" data-vendor="${v}"><div class="quote-panel-head"><span>${esc(vendorName(v))}</span><span class="${!q.received||c.items.some(it=>priceFor(c,it,v)===null)?'quote-missing':'quote-ok'}">${!q.received?'WAITING · EXCLUDED':c.items.some(it=>priceFor(c,it,v)===null)?`${c.items.filter(it=>priceFor(c,it,v)===null).length} PRICE${c.items.filter(it=>priceFor(c,it,v)===null).length===1?'':'S'} MISSING`:'PRICES COMPLETE'}</span></div><div class="quote-panel-body"><div class="quote-fields">
+ <div><label>Quote / Reference</label><input class="q-no" value="${esc(q.quoteNo||'')}"></div><div><label>Quote received</label><input class="q-date" type="date" value="${q.quoteDate||''}"></div>
+ <div><label>Valid until</label><input class="q-valid" type="date" value="${q.validUntil||''}"></div><div><label>Quote status</label><select class="q-received"><option value="false" ${!q.received?'selected':''}>Waiting</option><option value="true" ${q.received?'selected':''}>Received</option></select></div>
+ <div><label>Discount</label><input class="q-discount" type="number" min="0" ${q.discountType==='percent'?'max="100"':''} step="0.01" value="${num(q.discount)}"></div><div><label>Discount type</label><select class="q-discount-type"><option value="value" ${q.discountType==='value'?'selected':''}>Amount</option><option value="percent" ${q.discountType==='percent'?'selected':''}>Percent</option></select></div>
+ <div><label>Shipping</label><input class="q-shipping" type="number" min="0" step="0.01" value="${num(q.shipping)}"></div><div><label>Tax %</label><input class="q-tax" type="number" min="0" step="0.01" value="${num(q.tax)}"></div>
+ <div><label>Payment terms</label><input class="q-terms" value="${esc(q.paymentTerms||'')}"></div><div><label>Lead time</label><input class="q-lead" value="${esc(q.leadTime||'')}" placeholder="e.g. 7 days"></div>
+ <div class="full"><label>Quote notes</label><textarea class="q-notes" placeholder="Conditions, exclusions, delivery notes…">${esc(q.notes||'')}</textarea></div>
+ </div></div></div>`}).join('');
+ renderQuoteSummary(c);wireWorkspace(c);
+}
+function renderQuoteSummary(c){
+ const t=totals(c),best=t[0],o=calcOptions(c);
+ $('quoteSummary').innerHTML=c.vendorIds.map(v=>{const q=quoteFor(c,v),sub=vendorSubtotal(c,v),g=groupCost(c,v,sub),total=vendorComplete(c,v)?g.total:null;return `<div class="quote-card ${best?.vid===v?'best':''}"><h4>${esc(vendorName(v))}${best?.vid===v?' · BEST TOTAL':''}</h4><div class="quote-line"><span>Items subtotal</span><b>${money(sub,c.currency)}</b></div><div class="quote-line"><span>Discount${o.discount?'':' · excluded'}</span><b>${o.discount?'− '+money(g.discount,c.currency):'—'}</b></div><div class="quote-line"><span>Shipping${o.shipping?'':' · excluded'}</span><b>${o.shipping?money(g.shipping,c.currency):'—'}</b></div><div class="quote-line"><span>Tax${o.tax?'':' · excluded'}</span><b>${o.tax?money(g.tax,c.currency):'—'}</b></div><div class="quote-line total"><span>Total</span><b>${!q.received?'Waiting · excluded':total===null?'Incomplete':money(total,c.currency)}</b></div><div class="muted small" style="margin-top:6px">${q.quoteNo?`Quote ${esc(q.quoteNo)}`:'No quote reference'}${q.validUntil?` · valid to ${fmtDate(q.validUntil)}`:''}</div></div>`}).join('');
+}
+function wireWorkspace(c){
+ ['calcShipping','calcTax','calcDiscount'].forEach((id,i)=>{$(id).onchange=e=>{c.calcOptions=c.calcOptions||{shipping:true,tax:true,discount:true};c.calcOptions[['shipping','tax','discount'][i]]=e.target.checked;markDecisionChanged(c);persist();renderWorkspace()}});
+ document.querySelectorAll('#compareBody tr').forEach(tr=>{
+   const it=c.items.find(x=>x.id===+tr.dataset.item);
+   tr.querySelector('.item-name').oninput=e=>{it.name=e.target.value;workspaceChanged(c)};
+   tr.querySelector('.item-qty').oninput=e=>{it.qty=num(e.target.value);markDecisionChanged(c);workspaceChanged(c,true)};
+   tr.querySelector('.item-unit').oninput=e=>{it.unit=e.target.value;workspaceChanged(c)};
+   tr.querySelectorAll('.item-price').forEach(inp=>inp.oninput=e=>{it.prices=it.prices||{};it.prices[e.target.dataset.vendor]=e.target.value===''?'':num(e.target.value);markDecisionChanged(c);workspaceChanged(c,true)});
+   tr.querySelector('.selected-supplier').onchange=e=>{it.selectedVendorId=e.target.value?+e.target.value:null;it.selectionNeedsReview=false;syncDecisionWarnings(c);workspaceChanged(c,true)};
+   tr.querySelector('.del-item').onclick=()=>{if(c.items.length===1)return alert('A comparison needs at least one item.');markDecisionChanged(c);c.items=c.items.filter(x=>x.id!==it.id);persist();renderWorkspace()};
+ });
+ document.querySelectorAll('.quote-panel').forEach(p=>{
+   const q=quoteFor(c,+p.dataset.vendor);
+   const bind=(sel,key,conv=x=>x,affectsDecision=false)=>p.querySelector(sel).oninput=e=>{q[key]=conv(e.target.value);if(affectsDecision)markDecisionChanged(c);workspaceChanged(c,true)};
+   bind('.q-no','quoteNo');bind('.q-date','quoteDate');bind('.q-valid','validUntil');p.querySelector('.q-received').onchange=e=>{q.received=e.target.value==='true';if(!q.received){c.items.forEach(it=>{if(Number(it.selectedVendorId)===+p.dataset.vendor){it.selectedVendorId=null;it.selectionNeedsReview=false}});markDecisionChanged(c)}persist();renderWorkspace()};bind('.q-discount','discount',x=>q.discountType==='percent'?Math.min(100,Math.max(0,num(x))):Math.max(0,num(x)),true);p.querySelector('.q-discount-type').onchange=e=>{q.discountType=e.target.value;if(q.discountType==='percent'&&num(q.discount)>100)q.discount=100;markDecisionChanged(c);persist();renderWorkspace()};bind('.q-shipping','shipping',num,true);bind('.q-tax','tax',num,true);bind('.q-terms','paymentTerms');bind('.q-lead','leadTime');bind('.q-notes','notes');
+ });
+}
+function refreshWorkspaceCalculated(c){
+ const co=calcOptions(c);$('calcShipping').checked=co.shipping;$('calcTax').checked=co.tax;$('calcDiscount').checked=co.discount;
+ const t=totals(c),best=t[0],worst=t[t.length-1],split=bestSplit(c),extra=best&&split?Math.max(0,best.total-split.total):0;
+ const decision=selectedDecisionTotal(c);let selectedTotal=decision.total,selectedCount=decision.count,selectedVendors=decision.vendors;
+ const completeDecision=selectedCount===c.items.length&&c.items.length>0,decisionDiff=completeDecision&&split?selectedTotal-split.total:null;
+ $('resultBanner').innerHTML=`<div class="result-block single"><span>Best single vendor</span><b>${best?esc(vendorName(best.vid)):'Incomplete quotes'}</b><div class="muted small">${best?money(best.total,c.currency):'Received quote with all item prices required'}</div></div><div class="result-block combo"><span>Lowest purchase combination</span><b>${split?money(split.total,c.currency):'—'}</b><div class="muted small">${split?`${split.vendors.size} supplier${split.vendors.size===1?'':'s'} · based on fixed item comparison totals`:'Received quotes only'}</div></div><div class="result-block decision"><span>Purchase decision</span><b>${completeDecision?money(selectedTotal,c.currency):`${selectedCount} of ${c.items.length} items selected`}</b><div class="muted small">${completeDecision?(decisionDiff<=0?`At or below comparison benchmark · ${selectedVendors.size} supplier${selectedVendors.size===1?'':'s'}`:`${money(decisionDiff,c.currency)} above comparison benchmark · ${selectedVendors.size} supplier${selectedVendors.size===1?'':'s'}`):'Choose a supplier for each item'}</div></div><div class="result-block saving"><span>Potential saving</span><b>${t.length>=2?money(worst.total-best.total,c.currency):'—'}</b><div class="muted small">Highest complete received quote vs best single-vendor total</div></div>`;
+ workspaceAlerts(c);const dw=$('decisionWarning');if(dw)dw.classList.toggle('show',c.status!=='Awarded'&&!!c.decisionNeedsReview);
+ renderQuoteSummary(c);
+ document.querySelectorAll('#compareBody tr').forEach(tr=>{
+   const it=c.items.find(x=>x.id===+tr.dataset.item);if(!it)return;
+   const vals=c.vendorIds.filter(v=>quoteEligible(c,v)).map(v=>({v,p:priceFor(c,it,v)})).filter(x=>x.p!==null),low=vals.length?Math.min(...vals.map(x=>x.p)):null,high=vals.length?Math.max(...vals.map(x=>x.p)):null;
+   const rt=rowLowestVendorTotals(c,it);
+   tr.querySelectorAll('.item-price').forEach(inp=>{const vid=+inp.dataset.vendor,p=priceFor(c,it,vid),a=vendorItemAllocation(c,it,vid),isLow=a&&rt.low!==null&&Math.abs(a.total-rt.low)<.000001;inp.classList.toggle('missing-price',p===null);inp.classList.toggle('lowest',!!isLow);const cell=inp.closest('td'),tot=cell&&cell.querySelector('.vendor-item-total');if(tot)tot.textContent=a?'Total '+money(a.total,c.currency):''});
+   const spread=tr.querySelector('.spread');if(spread)spread.textContent=vals.length>1?`Price spread ${low>0?((high-low)/low*100).toFixed(1):'0.0'}% · ${money(low,c.currency)}–${money(high,c.currency)}`:'';
+   const sel=tr.querySelector('.selected-supplier');if(sel){Array.from(sel.options).forEach(op=>{if(!op.value)return;const vid=+op.value,a=vendorItemAllocation(c,it,vid),isLow=a&&rt.low!==null&&Math.abs(a.total-rt.low)<.000001;op.textContent=vendorName(vid)+(isLow?' · lowest':'')})}
+   const ri=tr.querySelector('.recalc-icon');if(ri)ri.classList.toggle('show',c.status!=='Awarded'&&!!it.selectionNeedsReview&&!!it.selectedVendorId);
+   const sc=tr.querySelector('.selection-cost'),a=selectedItemAllocation(c,it);if(sc){sc.innerHTML=a?`Total ${money(a.total,c.currency)}<div class="cost-detail">${a.shippingShare?`Shipping ${money(a.shippingShare,c.currency)}`:''}${a.discountShare?`${a.shippingShare?' · ':''}Discount −${money(a.discountShare,c.currency)}`:''}${a.taxShare?`${(a.shippingShare||a.discountShare)?' · ':''}Tax ${money(a.taxShare,c.currency)}`:''}</div>`:'';}
+ });
+ document.querySelectorAll('.quote-panel').forEach(p=>{const vid=+p.dataset.vendor,missing=c.items.filter(it=>priceFor(c,it,vid)===null).length,b=p.querySelector('.quote-panel-head span:last-child');if(b){const waiting=!quoteFor(c,vid).received;b.className=waiting||missing?'quote-missing':'quote-ok';b.textContent=waiting?'WAITING · EXCLUDED':missing?`${missing} PRICE${missing===1?'':'S'} MISSING`:'PRICES COMPLETE'}});
+}
+function workspaceChanged(c,recalc=false){persist();if(recalc)refreshWorkspaceCalculated(c)}
+$('addItem').onclick=()=>{const c=comparison(currentComparisonId);markDecisionChanged(c);c.items.push({id:uid(),name:'',qty:1,unit:'pcs',prices:{}});persist();renderWorkspace()};
+$('selectLowestItems').onclick=()=>{const c=comparison(currentComparisonId),split=bestSplit(c);if(!split)return alert('Enter enough vendor prices to calculate a purchase combination.');c.items.forEach((it,i)=>it.selectedVendorId=split.alloc[i]?.vid||null);clearDecisionWarnings(c);persist();renderWorkspace();toast('Lowest purchase combination selected')};
+$('selectBestVendor').onclick=()=>{const c=comparison(currentComparisonId),best=totals(c)[0];if(!best)return alert('Complete at least one vendor quote first.');c.items.forEach(it=>it.selectedVendorId=best.vid);clearDecisionWarnings(c);persist();renderWorkspace();toast(`${vendorName(best.vid)} selected for all items`)};
+$('clearSelections').onclick=()=>{const c=comparison(currentComparisonId);c.items.forEach(it=>it.selectedVendorId=null);clearDecisionWarnings(c);persist();renderWorkspace()};
+
+function persist(){ /* Demo intentionally uses in-memory data only. */ }
+function resetDemo(){
+ vendors=[
+  {id:1,company:'Northstar Packaging Co.',currency:'USD',terms:'30 days',leadTime:'10 days'},
+  {id:2,company:'Harbor Supply Group',currency:'USD',terms:'14 days',leadTime:'5 days'}
+ ];
+ comparisons=[{id:101,title:'Packaging Supplies — Interactive Demo',date:'2026-11-03',currency:'USD',status:'Open',requestedBy:'Operations',reference:'RFQ-DEMO',vendorIds:[1,2],notes:'Sample data for demonstration only.',calcOptions:{shipping:true,tax:true,discount:true},
+ items:[
+ {id:1001,name:'Shipping box 30×20',qty:500,unit:'pcs',prices:{1:.57,2:.62},selectedVendorId:null},
+ {id:1002,name:'Packing paper',qty:20,unit:'kg',prices:{1:19.5,2:18},selectedVendorId:null},
+ {id:1003,name:'Mailing labels',qty:1000,unit:'pcs',prices:{1:.031,2:.032},selectedVendorId:null},
+ {id:1004,name:'Packing tape',qty:60,unit:'rolls',prices:{1:2.95,2:2.75},selectedVendorId:null}
+ ],quotes:{
+ 1:{quoteNo:'NS-DEMO',quoteDate:'2026-11-01',validUntil:'2026-11-06',shipping:45,discountType:'percent',discount:3,tax:0,paymentTerms:'30 days',leadTime:'10 days',notes:'Sample quotation.',received:true},
+ 2:{quoteNo:'HG-DEMO',quoteDate:'2026-11-02',validUntil:'2026-11-20',shipping:25,discountType:'value',discount:20,tax:0,paymentTerms:'14 days',leadTime:'5 days',notes:'Sample quotation.',received:true}
+ }}];
+ currentComparisonId=101;renderWorkspace();
+}
+function showLocked(title){$('lockedTitle').textContent=title;$('lockedModal').classList.add('open')}
+document.querySelectorAll('.nav button[data-locked]').forEach(b=>b.onclick=()=>showLocked(b.textContent.trim()));
+$('lockedClose').onclick=()=>$('lockedModal').classList.remove('open');
+$('lockedModal').addEventListener('click',e=>{if(e.target===$('lockedModal'))$('lockedModal').classList.remove('open')});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')$('lockedModal').classList.remove('open')});
+$('resetDemo').onclick=()=>{resetDemo();toast('Sample data restored')};
+$('duplicateComparison').onclick=()=>showLocked('Comparison history and duplication');
+$('editComparisonMeta').onclick=()=>showLocked('Comparison details');
+$('printComparison').onclick=()=>showLocked('PDF export');
+resetDemo();
+
+</script></body></html>
